@@ -7,18 +7,18 @@ type Grid = (Cell | null)[][];
 const SIZE = 4;
 let TILE_ID = 1;
 
-const TILE_STYLES: Record<number, { bg: string; color: string; glow: string }> = {
-  2: { bg: 'rgba(124,58,237,0.15)', color: '#a78bfa', glow: '#7c3aed' },
-  4: { bg: 'rgba(124,58,237,0.25)', color: '#c4b5fd', glow: '#8b5cf6' },
-  8: { bg: 'rgba(59,130,246,0.25)', color: '#93c5fd', glow: '#3b82f6' },
-  16: { bg: 'rgba(6,182,212,0.25)', color: '#67e8f9', glow: '#06b6d4' },
-  32: { bg: 'rgba(16,185,129,0.25)', color: '#6ee7b7', glow: '#10b981' },
-  64: { bg: 'rgba(132,204,22,0.28)', color: '#bef264', glow: '#84cc16' },
-  128: { bg: 'rgba(234,179,8,0.28)', color: '#fde047', glow: '#eab308' },
-  256: { bg: 'rgba(249,115,22,0.3)', color: '#fdba74', glow: '#f97316' },
-  512: { bg: 'rgba(244,63,94,0.3)', color: '#fda4af', glow: '#f43f5e' },
-  1024: { bg: 'rgba(236,72,153,0.35)', color: '#f9a8d4', glow: '#ec4899' },
-  2048: { bg: 'rgba(217,70,239,0.4)', color: '#f0abfc', glow: '#d946ef' },
+const TILE_STYLES: Record<number, { bg: string; color: string }> = {
+  2: { bg: '#eee4da', color: '#776e65' },
+  4: { bg: '#ede0c8', color: '#776e65' },
+  8: { bg: '#f2b179', color: '#f9f6f2' },
+  16: { bg: '#f59563', color: '#f9f6f2' },
+  32: { bg: '#f67c5f', color: '#f9f6f2' },
+  64: { bg: '#f65e3b', color: '#f9f6f2' },
+  128: { bg: '#edcf72', color: '#f9f6f2' },
+  256: { bg: '#edcc61', color: '#f9f6f2' },
+  512: { bg: '#edc850', color: '#f9f6f2' },
+  1024: { bg: '#edc53f', color: '#f9f6f2' },
+  2048: { bg: '#edc22e', color: '#f9f6f2' },
 };
 
 const emptyGrid = (): Grid => Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
@@ -225,73 +225,68 @@ const Index = () => {
     setWon(false);
   };
 
+  const tiles: { cell: Cell; r: number; c: number }[] = [];
+  grid.forEach((row, r) => row.forEach((cell, c) => { if (cell) tiles.push({ cell, r, c }); }));
+
   return (
-    <div className="min-h-screen flex flex-col items-center px-4 py-8 font-body text-white">
-      <div className="w-full max-w-md animate-fade-in">
-        <header className="flex items-end justify-between mb-6">
+    <div className="min-h-screen flex flex-col items-center px-4 py-8 font-body" style={{ color: '#776e65' }}>
+      <div className="w-full max-w-[480px] animate-fade-in">
+        <header className="flex items-start justify-between mb-4">
           <div>
-            <h1 className="font-display text-6xl font-700 tracking-tight" style={{ color: '#a78bfa' }}>
-              <span className="neon-text">2048</span>
-            </h1>
-            <p className="text-sm text-white/50 mt-1">Неоновая версия · ночной режим</p>
+            <h1 className="text-[64px] leading-none font-800" style={{ color: '#776e65' }}>2048</h1>
+            <p className="text-[15px] mt-2 max-w-[230px]">
+              Соединяй плитки и собери <strong>2048!</strong>
+            </p>
           </div>
           <div className="flex gap-2">
             <ScoreBox label="СЧЁТ" value={score} />
-            <ScoreBox label="РЕКОРД" value={best} accent />
+            <ScoreBox label="РЕКОРД" value={best} />
           </div>
         </header>
 
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-white/60 max-w-[55%]">Объединяй плитки и собери <span className="text-purple-300 font-600">2048</span>!</p>
           <div className="flex gap-2">
             <IconBtn icon={soundOn ? 'Volume2' : 'VolumeX'} onClick={() => setSoundOn((s) => !s)} />
             <IconBtn icon="HelpCircle" onClick={() => setShowRules((v) => !v)} />
-            <button
-              onClick={newGame}
-              className="px-4 h-10 rounded-xl font-600 text-sm transition-all hover:scale-105 active:scale-95"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#06b6d4)', boxShadow: '0 0 20px rgba(124,58,237,0.5)' }}
-            >
-              Новая игра
-            </button>
           </div>
+          <button
+            onClick={newGame}
+            className="px-5 h-11 rounded-md font-700 text-[15px] text-white transition-colors hover:opacity-90"
+            style={{ background: '#8f7a66' }}
+          >
+            Новая игра
+          </button>
         </div>
 
         <div
-          className="relative rounded-2xl p-3 select-none touch-none"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)' }}
+          className="relative rounded-md select-none touch-none"
+          style={{ background: '#bbada0', padding: '12px', aspectRatio: '1' }}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 gap-3 w-full h-full">
             {Array.from({ length: SIZE * SIZE }).map((_, i) => (
-              <div key={i} className="grid-cell rounded-xl aspect-square" />
+              <div key={i} className="grid-cell rounded-md" />
             ))}
           </div>
-          <div className="absolute inset-3 grid grid-cols-4 gap-3 pointer-events-none">
-            {grid.flat().map((cell, i) =>
-              cell ? (
-                <Tile key={cell.id + '-' + i} cell={cell} />
-              ) : (
-                <div key={'e' + i} />
-              )
-            )}
-          </div>
+
+          {tiles.map(({ cell, r, c }) => (
+            <Tile key={cell.id} cell={cell} r={r} c={c} />
+          ))}
 
           {(gameOver || won) && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl animate-fade-in z-10"
-              style={{ background: 'rgba(10,10,20,0.85)', backdropFilter: 'blur(4px)' }}>
-              <h2 className="font-display text-5xl neon-text mb-2" style={{ color: won && !gameOver ? '#f0abfc' : '#fda4af' }}>
-                {won && !gameOver ? 'ПОБЕДА!' : 'КОНЕЦ'}
+            <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md animate-fade-in z-10"
+              style={{ background: 'rgba(238,228,218,0.73)' }}>
+              <h2 className="text-[52px] font-800 mb-4" style={{ color: '#776e65' }}>
+                {won && !gameOver ? 'Победа!' : 'Игра окончена!'}
               </h2>
-              <p className="text-white/70 mb-5">Счёт: {score}</p>
               <div className="flex gap-3">
                 {won && !gameOver && (
-                  <button onClick={() => setWon(false)} className="px-5 h-11 rounded-xl font-600 border border-white/20 hover:bg-white/10 transition">
+                  <button onClick={() => setWon(false)} className="px-5 h-11 rounded-md font-700 text-white" style={{ background: '#8f7a66' }}>
                     Продолжить
                   </button>
                 )}
-                <button onClick={newGame} className="px-5 h-11 rounded-xl font-600"
-                  style={{ background: 'linear-gradient(135deg,#7c3aed,#06b6d4)', boxShadow: '0 0 20px rgba(124,58,237,0.5)' }}>
+                <button onClick={newGame} className="px-5 h-11 rounded-md font-700 text-white" style={{ background: '#8f7a66' }}>
                   Заново
                 </button>
               </div>
@@ -299,67 +294,71 @@ const Index = () => {
           )}
         </div>
 
-        <div className="flex items-center justify-center gap-2 mt-4 text-xs text-white/40">
+        <div className="flex items-center justify-center gap-2 mt-4 text-[13px]" style={{ color: '#998f86' }}>
           <Icon name="ArrowUp" size={14} /><Icon name="ArrowDown" size={14} />
           <Icon name="ArrowLeft" size={14} /><Icon name="ArrowRight" size={14} />
-          <span>стрелки или свайпы · WASD</span>
+          <span>стрелки, свайпы или WASD</span>
         </div>
 
         {showRules && (
-          <div className="mt-5 rounded-2xl p-5 animate-fade-in text-sm text-white/70 space-y-2"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <h3 className="font-display text-xl text-purple-300 mb-2">Правила</h3>
+          <div className="mt-5 rounded-md p-5 animate-fade-in text-[14px] space-y-2"
+            style={{ background: '#eee4da', color: '#776e65' }}>
+            <h3 className="text-xl font-700 mb-2">Как играть</h3>
             <p>Свайпай или жми стрелки, чтобы двигать все плитки.</p>
             <p>Две плитки с одинаковым числом сливаются в одну.</p>
-            <p>Цель — собрать плитку <span className="text-pink-300 font-600">2048</span>. Прогресс сохраняется автоматически!</p>
+            <p>Цель — собрать плитку <strong>2048</strong>. Прогресс сохраняется автоматически!</p>
           </div>
         )}
 
         <section className="mt-6">
-          <h3 className="font-display text-2xl text-cyan-300 mb-3 flex items-center gap-2">
+          <h3 className="text-2xl font-700 mb-3 flex items-center gap-2" style={{ color: '#776e65' }}>
             <Icon name="Trophy" size={22} /> Лучшие результаты
           </h3>
           {history.length === 0 ? (
-            <p className="text-white/40 text-sm">Пока нет завершённых игр. Сыграй первую!</p>
+            <p className="text-[14px]" style={{ color: '#998f86' }}>Пока нет завершённых игр. Сыграй первую!</p>
           ) : (
             <div className="space-y-2">
               {history.map((h, i) => (
-                <div key={i} className="flex items-center justify-between rounded-xl px-4 py-3"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div key={i} className="flex items-center justify-between rounded-md px-4 py-3"
+                  style={{ background: '#eee4da' }}>
                   <div className="flex items-center gap-3">
-                    <span className="font-display text-lg w-6 text-white/40">{i + 1}</span>
+                    <span className="text-lg w-6 font-700" style={{ color: '#bbada0' }}>{i + 1}</span>
                     <div>
-                      <p className="font-600">{h.score} очков</p>
-                      <p className="text-xs text-white/40">плитка {h.max} · {h.date}</p>
+                      <p className="font-700">{h.score} очков</p>
+                      <p className="text-xs" style={{ color: '#998f86' }}>плитка {h.max} · {h.date}</p>
                     </div>
                   </div>
-                  {i === 0 && <Icon name="Crown" size={20} className="text-yellow-300" />}
+                  {i === 0 && <Icon name="Crown" size={20} style={{ color: '#edc22e' }} />}
                 </div>
               ))}
             </div>
           )}
         </section>
 
-        <footer className="text-center text-white/30 text-xs mt-8 pb-4">
-          Сделано на poehali.dev · собери 2048 ✦
+        <footer className="text-center text-xs mt-8 pb-4" style={{ color: '#bbada0' }}>
+          Сделано на poehali.dev · собери 2048
         </footer>
       </div>
     </div>
   );
 };
 
-const Tile = ({ cell }: { cell: Cell }) => {
-  const style = TILE_STYLES[cell.value] || { bg: 'rgba(217,70,239,0.45)', color: '#f5d0fe', glow: '#d946ef' };
-  const fontSize = cell.value >= 1024 ? 'text-2xl' : cell.value >= 128 ? 'text-3xl' : 'text-4xl';
+const Tile = ({ cell, r, c }: { cell: Cell; r: number; c: number }) => {
+  const style = TILE_STYLES[cell.value] || { bg: '#3c3a32', color: '#f9f6f2' };
+  const digits = String(cell.value).length;
+  const fontSize = digits >= 4 ? 'clamp(18px,5vw,30px)' : digits === 3 ? 'clamp(24px,6vw,38px)' : 'clamp(30px,8vw,46px)';
   return (
     <div
-      className={`rounded-xl flex items-center justify-center font-display font-600 ${fontSize} ${cell.isNew ? 'animate-tile-pop' : cell.merged ? 'animate-tile-merge' : ''}`}
+      className={`absolute flex items-center justify-center rounded-md font-700 ${cell.isNew ? 'animate-tile-pop' : cell.merged ? 'animate-tile-merge' : ''}`}
       style={{
         background: style.bg,
         color: style.color,
-        border: `1.5px solid ${style.glow}`,
-        boxShadow: `0 0 16px ${style.glow}66, inset 0 0 12px ${style.glow}33`,
-        textShadow: `0 0 10px ${style.glow}`,
+        fontSize,
+        width: 'calc((100% - 24px - 36px) / 4)',
+        height: 'calc((100% - 24px - 36px) / 4)',
+        left: `calc(12px + ${c} * ((100% - 24px - 36px) / 4 + 12px))`,
+        top: `calc(12px + ${r} * ((100% - 24px - 36px) / 4 + 12px))`,
+        transition: 'left 0.12s ease, top 0.12s ease',
       }}
     >
       {cell.value}
@@ -367,21 +366,17 @@ const Tile = ({ cell }: { cell: Cell }) => {
   );
 };
 
-const ScoreBox = ({ label, value, accent }: { label: string; value: number; accent?: boolean }) => (
-  <div className="rounded-xl px-4 py-2 min-w-[72px] text-center"
-    style={{
-      background: 'rgba(255,255,255,0.05)',
-      border: `1px solid ${accent ? 'rgba(6,182,212,0.4)' : 'rgba(124,58,237,0.4)'}`,
-    }}>
-    <p className="text-[10px] tracking-widest text-white/50">{label}</p>
-    <p className="font-display text-xl font-600" style={{ color: accent ? '#67e8f9' : '#a78bfa' }}>{value}</p>
+const ScoreBox = ({ label, value }: { label: string; value: number }) => (
+  <div className="rounded-md px-4 py-2 min-w-[80px] text-center" style={{ background: '#bbada0' }}>
+    <p className="text-[11px] tracking-wide font-700" style={{ color: '#eee4da' }}>{label}</p>
+    <p className="text-xl font-700 text-white">{value}</p>
   </div>
 );
 
 const IconBtn = ({ icon, onClick }: { icon: string; onClick: () => void }) => (
   <button onClick={onClick}
-    className="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 text-white/70 hover:text-white"
-    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+    className="w-11 h-11 rounded-md flex items-center justify-center transition-colors text-white hover:opacity-90"
+    style={{ background: '#bbada0' }}>
     <Icon name={icon} size={18} />
   </button>
 );
